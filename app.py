@@ -303,22 +303,22 @@ def showDashboard():
 def getAllWishes():
     try:
         if session.get('user'):
+            _user = session.get('user')
             conn = mysql.connect()
             cursor = conn.cursor()
             cursor.callproc('sp_GetAllWishes',(_user,))
             result = cursor.fetchall()
             wishes_list = []
             for wish in result:
-                wish_dict = {'Id':wish[0], 'Title':wish[1],'Description':wish[2],'FilePath':wish[3],'Like':wish[4], 'HasLiked':wish[5]}
+                wish_dict = {'Id':wish[0], 'Title':wish[1],'Description':wish[2],'FilePath':wish[3],'Like':wish[4],'HasLiked':wish[5]}
                 wishes_list.append(wish_dict)
+
             return json.dumps(wishes_list)
         else:
             return render_template('error.html',error = 'Unauthorized Access!')
     except Exception as e:
+        print(2)
         return render_template('error.html', error = str(e))
-    finally:
-        cursor.close()
-        conn.close()
 
 @app.route('/addUpdateLike',methods=['POST'])
 def addUpdateLike():
@@ -353,7 +353,7 @@ def addUpdateLike():
     finally:
         cursor.close()
         conn.close()
-  
+
 
 if __name__ == "__main__":
     app.run(debug = True)
