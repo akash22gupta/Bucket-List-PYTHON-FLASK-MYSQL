@@ -11,10 +11,10 @@ app.secret_key = 'why would I tell you my secret key?'
 mysql = MySQL()
 
 #mysql configuration
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '5129'
-app.config['MYSQL_DATABASE_DB'] = 'bucketlist'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = 'root' #database user
+app.config['MYSQL_DATABASE_PASSWORD'] = '5129' #root Password
+app.config['MYSQL_DATABASE_DB'] = 'bucketlist' #database Name
+app.config['MYSQL_DATABASE_HOST'] = 'localhost' #database host
 mysql.init_app(app)
 
 
@@ -43,19 +43,18 @@ def signUp():
             cursor = conn.cursor()
             _hashed_password = generate_password_hash(_password)
             cursor.callproc('sp_newUser',(_name,_email,_hashed_password))
-            data  = cursor.fetchall()
+            result  = cursor.fetchall()
 
-            if len(data) is 0:
+            if len(result) is 0:
                 conn.commit()
-                return redirect('/')
+                return render_template('success.html',succss = 'Sign Up is succssful')
             else:
-                return json.dumps({'error':str(data[0])})
+                return render_template('error.html',error = str(result[0]))
 
         else:
-            print("not data")
-            return json.dumps({'html':'<span>Enter the required fields</span>'})
+            return render_template('error.html',error = 'Enter the required feilds Please')
     except Exception as e:
-        return json.dumps({'error':str(e)})
+        return render_template('error.html',error = str(e))
     finally:
         cursor.close()
         conn.close()
