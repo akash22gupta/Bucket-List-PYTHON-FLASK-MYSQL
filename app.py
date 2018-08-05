@@ -6,7 +6,7 @@ from werkzeug.wsgi import LimitedStream
 from werkzeug import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'why would I tell you my secret key?'
+app.secret_key = 'it is used as a private key'
 
 mysql = MySQL()
 
@@ -29,8 +29,9 @@ def main():
 def showSignUp():
     return render_template('signup.html')
 
-@app.route("/signUp", methods = ['POST','GET'])
+@app.route("/signUp", methods = ['POST'])
 def signUp():
+    print("I am herer")
     # read the posted value from the UI
     try:
         _name = request.form['inputName']
@@ -47,9 +48,10 @@ def signUp():
 
             if len(result) is 0:
                 conn.commit()
-                return render_template('success.html',succss = 'Sign Up is succssful')
+                return render_template('success.html',success = 'Sign Up is succssful')
             else:
-                return render_template('error.html',error = str(result[0]))
+                print(result[0][0])
+                return render_template('error.html',error = str(result[0][0]))
 
         else:
             return render_template('error.html',error = 'Enter the required feilds Please')
@@ -76,7 +78,6 @@ def validateLogin():
             cursor = conn.cursor()
             cursor.callproc('sp_validate_username',(_username,))
             data = cursor.fetchall()
-            print(data)
 
             if len(data) > 0:
                 if check_password_hash(str(data[0][3]),_password):
@@ -88,7 +89,6 @@ def validateLogin():
                 return render_template('error.html',error = 'User does not exist')
 
         else:
-            print('no data')
             return json.dumps({'html' : ' <span>Enter the required fields</span>'})
 
     except Exception as e:
@@ -176,6 +176,8 @@ def getWish():
             cursor = con.cursor()
             cursor.callproc('sp_GetWishByUser',(_user,_limit,_offset,_total_records))
             wishes = cursor.fetchall()
+            print(wishes)
+            print(type(wishes))
             cursor.close()
             cursor = con.cursor()
             cursor.execute('SELECT @_sp_GetWishByUser_3');
